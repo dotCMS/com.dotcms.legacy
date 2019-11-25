@@ -22,8 +22,18 @@ dependencies {
     compileOnly('com.dotcms.enterprise:ee:5.2.1') {
         transitive = false
     }
+    
+
+    testCompile group: 'junit', name: 'junit-dep', version: '4.10'
+
+    testImplementation ('com.dotcms:dotcms:5.2.1') 
 
     compileOnly "javax.servlet:javax.servlet-api:3.1.0" 
+    
+    compileOnly (group: 'oro', name: 'oro', version: '2.0.8'){
+        transitive = false
+    }
+    
     compileOnly group: 'javax.servlet', name: 'jsp-api', version: '2.0'
     compileOnly group: 'com.dotcms.lib', name: 'dot.portlet', version:'1.0_2'
     compileOnly group: 'com.lmax', name: 'disruptor', version: '3.3.4'

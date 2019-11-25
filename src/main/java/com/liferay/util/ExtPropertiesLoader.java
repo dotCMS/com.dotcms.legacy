@@ -26,8 +26,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import com.dotmarketing.util.Logger;
 
 /**
  * <a href="ExtPropertiesLoader.java.html"><b><i>View Source</i></b></a>
@@ -53,11 +54,11 @@ public class ExtPropertiesLoader {
 
 				is.close();
 
-				Logger.info(this, "Loading " + url);
+				Logger.getLogger(this.getClass().getCanonicalName()).info("Loading " + url);
 			}
 		}
 		catch (Exception e) {
-			Logger.error(this,e.getMessage(),e);
+		    Logger.getLogger(this.getClass().getCanonicalName()).log(Level.WARNING, e.getMessage(),e);
 		}
 
 		try {
@@ -70,11 +71,11 @@ public class ExtPropertiesLoader {
 
 				is.close();
 
-				Logger.info(this, "Loading " + url);
+				Logger.getLogger(this.getClass().getCanonicalName()).info("Loading " + url);
 			}
 		}
 		catch (Exception e) {
-			Logger.error(this,e.getMessage(),e);
+		    Logger.getLogger(this.getClass().getCanonicalName()).log(Level.WARNING, e.getMessage(),e);
 		}
 
 		// Use a fast synchronized hash map implementation instead of the slower

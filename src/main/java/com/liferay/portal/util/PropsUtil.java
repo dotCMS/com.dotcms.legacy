@@ -23,6 +23,7 @@
 package com.liferay.portal.util;
 
 import java.util.Properties;
+import io.vavr.control.Try;
 
 /**
  * <a href="PropsUtil.java.html"><b><i>View Source</i></b></a>
@@ -424,7 +425,9 @@ public class PropsUtil {
 	public static String get(String key) {
 		return PropsLoader.getInstance().get(key);
 	}
-
+    public static String get(final String key, final String defaultValue) {
+        return Try.of(()-> PropsLoader.getInstance().get(key)).getOrElse(defaultValue);
+    }
 	public static void set(String key, String value) {
 		PropsLoader.getInstance().set(key, value);
 	}

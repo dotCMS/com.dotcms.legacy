@@ -33,9 +33,8 @@ import com.liferay.portal.util.PropsUtil;
 import com.liferay.util.LocaleUtil;
 import com.liferay.util.PwdGenerator;
 import java.util.Locale;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
-
+import org.apache.oro.text.perl.Perl5Util;
 
 /**
  * <a href="RegExpToolkit.java.html"><b><i>View Source</i></b></a>
@@ -45,14 +44,14 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class RegExpToolkit extends BasicToolkit {
 
-	private Pattern _pattern;
-	
+    private String _pattern;
+    
     public RegExpToolkit () {
-        this(PropsUtil.get( PropsUtil.PASSWORDS_REGEXPTOOLKIT_PATTERN ));
+        _pattern = PropsUtil.get( PropsUtil.PASSWORDS_REGEXPTOOLKIT_PATTERN );
     }
 
     public RegExpToolkit (String pattern) {
-        _pattern = Pattern.compile(pattern);
+        _pattern = pattern;
     }
 
     public String generate () {
@@ -60,49 +59,49 @@ public class RegExpToolkit extends BasicToolkit {
     }
 
     public boolean validate(String password) {
+        Perl5Util util = new Perl5Util();
 
-
-        return password == null ? false : _pattern.matcher(password).find();
+        return password == null ? false : util.match( _pattern, password );
     }
 
-	/**
-	 * Retrieves an error message from the {@code portal.properties} file based
-	 * on a message key. This {@code portal.properties} file will reference a
-	 * message key that <b>MUST BE</b> located in the
-	 * {@code Language.properties} files containing the respective error message
-	 * users will see. The main goal of this method is to provide users feedback
-	 * related to, for example:
-	 * <ul>
-	 * <li>The password not meeting the required security policies.</li>
-	 * <li>The password not being able to use because it cannot be recycled yet.
-	 * </li>
-	 * <li>The password not allowed when it is a word from the dictionary.</li>
-	 * <li>Etc.</li>
-	 * </ul>
-	 * 
-	 * @param msgKey
-	 *            - The message key to the internationalized error message.
-	 * @return The error message users will see explaining their respective
-	 *         error.
-	 */
-	public String getErrorMessageFromConfig(String msgKey) {
-		String messageKey = PropsUtil.get(msgKey);
-		String msg = null;
-		try {
-			HttpServletRequest req = HttpServletRequestThreadLocal.INSTANCE.getRequest();
+    /**
+     * Retrieves an error message from the {@code portal.properties} file based
+     * on a message key. This {@code portal.properties} file will reference a
+     * message key that <b>MUST BE</b> located in the
+     * {@code Language.properties} files containing the respective error message
+     * users will see. The main goal of this method is to provide users feedback
+     * related to, for example:
+     * <ul>
+     * <li>The password not meeting the required security policies.</li>
+     * <li>The password not being able to use because it cannot be recycled yet.
+     * </li>
+     * <li>The password not allowed when it is a word from the dictionary.</li>
+     * <li>Etc.</li>
+     * </ul>
+     * 
+     * @param msgKey
+     *            - The message key to the internationalized error message.
+     * @return The error message users will see explaining their respective
+     *         error.
+     */
+    public String getErrorMessageFromConfig(String msgKey) {
+        String messageKey = PropsUtil.get(msgKey);
+        String msg = null;
+        try {
+            HttpServletRequest req = HttpServletRequestThreadLocal.INSTANCE.getRequest();
             Locale locale = LocaleUtil.getLocale(req);
             if(UtilMethods.isSet(locale)){
-            	msg = LanguageUtil.get(locale, messageKey);
+                msg = LanguageUtil.get(locale, messageKey);
             }else{
-            	User systemUser = APILocator.getUserAPI().getSystemUser();
-            	msg = LanguageUtil.get(systemUser, messageKey);
+                User systemUser = APILocator.getUserAPI().getSystemUser();
+                msg = LanguageUtil.get(systemUser, messageKey);
             }
-		} catch (DotDataException e) {
-			msg = messageKey;
-		} catch (LanguageException e) {
-			msg = messageKey;
-		}
-		return msg;
-	}
+        } catch (DotDataException e) {
+            msg = messageKey;
+        } catch (LanguageException e) {
+            msg = messageKey;
+        }
+        return msg;
+    }
 
 }

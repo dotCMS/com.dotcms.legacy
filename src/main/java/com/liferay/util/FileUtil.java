@@ -290,7 +290,7 @@ public class FileUtil {
 	      return;
 	    }
 
-	    final List<File> allOldFiles = com.liferay.util.FileUtil.listFilesRecursively(directory, new FileFilter() {
+	    final List<File> allOldFiles = listFilesRecursively(directory, new FileFilter() {
 	      @Override
 	      public boolean accept(File pathname) {
 	        return pathname.lastModified() < deleteOlderTime;
@@ -345,21 +345,20 @@ public class FileUtil {
 			return null;
 		}
 
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		final InputStream in = Files.newInputStream(file.toPath());
-
-		byte buffer[] = new byte[2048];
-
-		int c;
-
-		while (( c = in.read(buffer) ) != -1) {
-			out.write(buffer, 0, c);
+		try(ByteArrayOutputStream out = new ByteArrayOutputStream()){
+    		final InputStream in = Files.newInputStream(file.toPath());
+    		byte buffer[] = new byte[2048];
+    		int c;
+    
+    		while (( c = in.read(buffer) ) != -1) {
+    			out.write(buffer, 0, c);
+    		}
+    
+    		in.close();
+    		out.close();
+    
+    		return out.toByteArray();
 		}
-
-		in.close();
-		out.close();
-
-		return out.toByteArray();
 	}
 
 	public static boolean isWindows(){
@@ -484,6 +483,7 @@ public class FileUtil {
 
         if(includeSubDirs) {
             Files.walk(dir.toPath())
+            .filter(p->!p.equals(dir.toPath()))
             .forEach(p->files.add(p.toFile()));
         }
         else {
@@ -566,7 +566,6 @@ public class FileUtil {
 		boolean success = source.renameTo(destination);
 		
 		// if the rename fails, copy
-
 		if (!success) {
 			copyFile(source, destination);
 			success = source.delete();
@@ -770,14 +769,14 @@ public class FileUtil {
 	  *
 	  * @param aStartingDir is a valid directory, which can be read.
 	  */
-	  static public List<File> listFilesRecursively(File aStartingDir, final FileFilter filter)  {
+	  static public List<File> listFilesRecursively(final File aStartingDir, final FileFilter filter)  {
 		    validateDirectory(aStartingDir);
 		    List<File> result = Try.of(()-> listFileHandles(aStartingDir, true)).getOrElseThrow(e->new DotRuntimeException("unable to list files under:" + aStartingDir + " :" + e));
 		    Collections.sort(result);
 		    
 		    
 		    
-		    return result.stream().filter(f->filter.accept(f)).collect(Collectors.toList());
+		    return filter==null ? result : result.stream().filter(filter::accept).collect(Collectors.toList());
 	  }
 
 

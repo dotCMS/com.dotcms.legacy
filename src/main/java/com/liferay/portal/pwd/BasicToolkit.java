@@ -36,7 +36,7 @@ public abstract class BasicToolkit {
 
 	public BasicToolkit() {
 		_allowDictionaryWord = GetterUtil.getBoolean(
-			PropsUtil.get(PropsUtil.PASSWORDS_ALLOW_DICTIONARY_WORD));
+			PropsUtil.get(PropsUtil.PASSWORDS_ALLOW_DICTIONARY_WORD, "false"));
 	}
 
 	public boolean allowDictionaryWord() {
