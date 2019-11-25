@@ -1,0 +1,65 @@
+
+plugins {
+    // Apply the java-library plugin to add support for Java Library
+    id 'java-library'
+}
+
+repositories {
+    maven { url "http://repo.dotcms.com/artifactory/libs-release" }
+    maven { url "http://repo.dotcms.com/artifactory/libs-snapshot-local" }
+    maven { url 'https://jitpack.io' }
+    jcenter()
+}
+
+
+dependencies {
+
+
+    compileOnly('com.dotcms:dotcms:5.2.1') {
+        transitive = false
+    }
+
+    compileOnly('com.dotcms.enterprise:ee:5.2.1') {
+        transitive = false
+    }
+
+    compileOnly "javax.servlet:javax.servlet-api:3.1.0" 
+    compileOnly group: 'javax.servlet', name: 'jsp-api', version: '2.0'
+    compileOnly group: 'com.dotcms.lib', name: 'dot.portlet', version:'1.0_2'
+    compileOnly group: 'com.lmax', name: 'disruptor', version: '3.3.4'
+    compileOnly group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
+    compileOnly group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
+    compileOnly group: 'org.apache.logging.log4j', name: 'log4j-jcl', version: '2.8.2'
+    compileOnly group: 'com.dotcms.lib', name: 'dot.portlet', version:'1.0_2'
+    compileOnly group: 'io.vavr', name: 'vavr', version: '0.9.0'
+    compileOnly group: 'com.dotcms.lib', name: 'dot.hibernate', version:'2.1.7_3'
+    compileOnly group: 'com.dotcms.lib', name: 'dot.httpbridge', version:'ukv_2'
+    compileOnly group: 'javax.mail', name: 'mail', version: '1.4'
+    compileOnly group: 'com.google.guava', name: 'guava', version: '19.0'
+    compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
+    compileOnly (group: 'com.dotcms.lib', name: 'dot.struts', version:'1.2.10_1'){
+        transitive = false
+    }
+    compileOnly (group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'){
+        transitive = false
+    }
+    compileOnly (group: 'dom4j', name: 'dom4j', version: '1.6.1'){
+        transitive = false
+    }
+    compileOnly (group: 'com.dotcms.lib', name: 'dot.stxx', version:'1.3_3'){
+        transitive = false
+    }
+    compileOnly (group: 'commons-configuration', name: 'commons-configuration', version: '1.10'){
+        transitive = false
+    }
+    compileOnly (group: 'commons-digester', name: 'commons-digester', version: '2.1'){
+        transitive = false
+    }
+    compileOnly (group: 'commons-codec', name: 'commons-codec', version: '1.13'){
+        transitive = false
+    }
+    compileOnly (group: 'commons-lang', name: 'commons-lang', version: '2.6'){
+        transitive = false
+    }
+    
+}
