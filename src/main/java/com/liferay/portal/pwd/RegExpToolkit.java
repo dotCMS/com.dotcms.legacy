@@ -33,8 +33,9 @@ import com.liferay.portal.util.PropsUtil;
 import com.liferay.util.LocaleUtil;
 import com.liferay.util.PwdGenerator;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.oro.text.perl.Perl5Util;
+
 
 /**
  * <a href="RegExpToolkit.java.html"><b><i>View Source</i></b></a>
@@ -44,14 +45,14 @@ import org.apache.oro.text.perl.Perl5Util;
  */
 public class RegExpToolkit extends BasicToolkit {
 
-	private String _pattern;
+	private Pattern _pattern;
 	
     public RegExpToolkit () {
-        _pattern = PropsUtil.get( PropsUtil.PASSWORDS_REGEXPTOOLKIT_PATTERN );
+        this(PropsUtil.get( PropsUtil.PASSWORDS_REGEXPTOOLKIT_PATTERN ));
     }
 
     public RegExpToolkit (String pattern) {
-        _pattern = pattern;
+        _pattern = Pattern.compile(pattern);
     }
 
     public String generate () {
@@ -59,9 +60,9 @@ public class RegExpToolkit extends BasicToolkit {
     }
 
     public boolean validate(String password) {
-        Perl5Util util = new Perl5Util();
 
-        return password == null ? false : util.match( _pattern, password );
+
+        return password == null ? false : _pattern.matcher(password).find();
     }
 
 	/**

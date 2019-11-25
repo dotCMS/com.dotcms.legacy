@@ -25,7 +25,7 @@ package com.liferay.portal.ejb;
 import java.util.Date;
 import java.util.List;
 
-import com.dotcms.repackage.com.liferay.counter.ejb.CounterManagerUtil;
+
 import com.liferay.portal.AddressCellException;
 import com.liferay.portal.AddressCityException;
 import com.liferay.portal.AddressCountryException;
@@ -64,8 +64,7 @@ public class AddressLocalManagerImpl implements AddressLocalManager {
 
 		User user = UserUtil.findByPrimaryKey(userId);
 
-		String addressId = Long.toString(CounterManagerUtil.increment(
-			Address.class.getName()));
+		String addressId = Long.toString(System.currentTimeMillis());
 
 		Address address = AddressUtil.create(addressId);
 

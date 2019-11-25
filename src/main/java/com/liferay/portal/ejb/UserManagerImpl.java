@@ -1,21 +1,3 @@
-/**
- * Copyright (c) 2000-2005 Liferay, LLC. All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
 
 package com.liferay.portal.ejb;
 
@@ -23,22 +5,19 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
 import javax.mail.internet.InternetAddress;
-
-import com.dotcms.api.system.user.UserService;
-import com.dotcms.business.CloseDBIfOpened;
-import com.dotcms.rest.api.v1.authentication.url.UrlStrategy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import com.dotcms.api.system.user.UserService;
+import com.dotcms.business.CloseDBIfOpened;
 import com.dotcms.enterprise.AuthPipeProxy;
 import com.dotcms.enterprise.PasswordFactoryProxy;
 import com.dotcms.enterprise.PasswordFactoryProxy.AuthenticationStatus;
 import com.dotcms.enterprise.de.qaware.heimdall.PasswordException;
-import com.dotcms.repackage.com.liferay.mail.ejb.MailManagerUtil;
 import com.dotcms.rest.api.v1.authentication.DotInvalidTokenException;
 import com.dotcms.rest.api.v1.authentication.ResetPasswordTokenUtil;
+import com.dotcms.rest.api.v1.authentication.url.UrlStrategy;
+import com.dotcms.util.CollectionsUtils;
 import com.dotcms.util.ConversionUtils;
 import com.dotcms.util.SecurityUtils;
 import com.dotcms.util.SecurityUtils.DelayStrategy;
@@ -51,6 +30,7 @@ import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.EmailUtils;
 import com.dotmarketing.util.Logger;
+import com.dotmarketing.util.Mailer;
 import com.dotmarketing.util.UtilMethods;
 import com.dotmarketing.util.WebKeys;
 import com.liferay.portal.NoSuchUserException;
@@ -79,9 +59,6 @@ import com.liferay.util.InstancePool;
 import com.liferay.util.KeyValuePair;
 import com.liferay.util.StringUtil;
 import com.liferay.util.Validator;
-import com.liferay.util.mail.MailMessage;
-
-import static com.dotcms.util.CollectionsUtils.map;
 
 /**
  * This manager provides interaction with {@link User} objects in terms of authentication,
@@ -346,8 +323,12 @@ public class UserManagerImpl extends PrincipalBean implements UserManager {
                             user.getEmailAddress(), user.getFullName(), user.getPassword()});
 
             try {
-                MailManagerUtil.sendEmail(new MailMessage(new InternetAddress(company.getEmailAddress(), adminName),
-                        new InternetAddress(user.getEmailAddress(), user.getFullName()), subject, body));
+                final Mailer mailer = new Mailer();
+                mailer.setToEmail(new InternetAddress(user.getEmailAddress(), user.getFullName()).getAddress());
+                mailer.setFromEmail(new InternetAddress(company.getEmailAddress(), adminName).getAddress());
+                mailer.setSubject(subject);
+                mailer.setTextBody(body);
+                mailer.sendMessage();
             } catch (IOException ioe) {
                 throw new SystemException(ioe);
             }
@@ -380,7 +361,7 @@ public class UserManagerImpl extends PrincipalBean implements UserManager {
 
         Company company = CompanyUtil.findByPrimaryKey(companyId);
 
-        String url = UrlStrategyUtil.getURL(company, map(UrlStrategy.USER, user, UrlStrategy.TOKEN, token, UrlStrategy.LOCALE, locale),
+        String url = UrlStrategyUtil.getURL(company, CollectionsUtils.map(UrlStrategy.USER, user, UrlStrategy.TOKEN, token, UrlStrategy.LOCALE, locale),
                 (fromAngular) ? UserService.ANGULAR_RESET_PASSWORD_URL_STRATEGY : UserService.DEFAULT_RESET_PASSWORD_URL_STRATEGY);
 
         String body = LanguageUtil.format(locale, "reset-password-email-body", url, false);

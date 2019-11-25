@@ -23,8 +23,7 @@
 package com.liferay.util;
 
 import java.util.Map;
-
-import com.dotcms.repackage.EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <a href="SimpleCachePool.java.html"><b><i>View Source</i></b></a>
@@ -60,7 +59,7 @@ public class SimpleCachePool {
 	}
 
 	private SimpleCachePool() {
-		_scPool = new ConcurrentReaderHashMap(_SIZE);
+		_scPool = new ConcurrentHashMap(_SIZE);
 	}
 
 	private Object _get(String id) {

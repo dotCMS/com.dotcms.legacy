@@ -31,7 +31,7 @@ import javax.mail.internet.InternetAddress;
 
 import com.dotcms.enterprise.PasswordFactoryProxy;
 import com.dotcms.enterprise.de.qaware.heimdall.PasswordException;
-import com.dotcms.repackage.com.liferay.mail.ejb.MailManagerUtil;
+
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.RegEX;
 import com.dotmarketing.util.UUIDUtil;

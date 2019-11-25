@@ -22,7 +22,7 @@
 
 package com.liferay.portlet;
 
-import com.dotcms.repackage.com.google.common.collect.ImmutableMap;
+
 import com.dotcms.repackage.javax.portlet.ActionRequest;
 import com.dotcms.repackage.javax.portlet.ActionResponse;
 import com.dotcms.repackage.javax.portlet.GenericPortlet;
@@ -39,6 +39,7 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.util.GetterUtil;
 import com.liferay.util.Validator;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,7 +65,7 @@ public class StrutsPortlet extends GenericPortlet {
       String key = e.nextElement();
       params.put(key, this.getInitParameter(key));
     }
-    this.initParams = ImmutableMap.copyOf(params);
+    this.initParams = Collections.unmodifiableMap(params);
 		_portletConfig = (PortletConfigImpl)config;
 
 		_editAction = getInitParameter("edit-action");

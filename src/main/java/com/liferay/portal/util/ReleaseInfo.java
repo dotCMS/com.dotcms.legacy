@@ -19,15 +19,18 @@
 
 package com.liferay.portal.util;
 
-import com.dotcms.repackage.com.google.common.collect.ImmutableMap;
-
-import com.dotmarketing.util.Logger;
-
 import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
+import com.dotcms.util.CollectionsUtils;
+import com.dotmarketing.util.Logger;
 import com.liferay.util.GetterUtil;
 
 /**
@@ -42,7 +45,7 @@ public final class ReleaseInfo {
 
 
 
-    private volatile Map<String, String> values = ImmutableMap.of("name", "dotCMS Platform", "version", "UNVERSIONED", "codename",
+    private volatile Map<String, String> values = CollectionsUtils.map("name", "dotCMS Platform", "version", "UNVERSIONED", "codename",
             "UNVERSIONED", "build", "0", "date", "March 6 2009");
 
     protected ReleaseInfo() {
@@ -70,7 +73,7 @@ public final class ReleaseInfo {
             }
         }
 
-        values = ImmutableMap.copyOf(tempValuesMap);
+        values = Collections.unmodifiableMap(tempValuesMap);
     }
 
     private final static ReleaseInfo instance = new ReleaseInfo();

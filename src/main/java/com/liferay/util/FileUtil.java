@@ -22,8 +22,7 @@
 
 package com.liferay.util;
 
-import com.dotcms.repackage.org.apache.commons.io.FileUtils;
-import com.dotcms.repackage.org.apache.commons.io.filefilter.TrueFileFilter;
+
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.DotStateException;
 import com.dotmarketing.util.Config;
@@ -49,6 +48,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,7 +61,8 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
-import org.apache.commons.codec.digest.DigestUtils;
+
+import org.apache.logging.log4j.core.util.FileUtils;
 
 /**
  * <a href="FileUtil.java.html"><b><i>View Source</i></b></a>
@@ -466,7 +468,7 @@ public class FileUtil {
 		return listFiles(new File(fileName), includeSubDirs);
 	}
 
-	public static boolean containsParentFolder(File file, File[] folders) {
+	public static final boolean containsParentFolder(final File file, final File[] folders) {
 		for (File folder : Arrays.asList(folders)) {
 
 			if(file.getParent().equalsIgnoreCase(folder.getPath())) {
@@ -485,61 +487,47 @@ public class FileUtil {
 		return listFileHandles(new File(fileName), includeSubDirs);
 	}
 	
-	public static File[] listFileHandles(File dir, Boolean includeSubDirs) throws IOException {
-		
-	    if(!dir.exists() || ! dir.isDirectory()){
-	    	return new File[0];
-	    }
-		
-		
-		FileFilter fileFilter = new FileFilter() {
-	        public boolean accept(File file) {
-	            return file.isDirectory();
-	        }
-	    };
+    private final static FileFilter directoryFilter = new FileFilter() {
+        public boolean accept(File file) {
+            return file.isDirectory();
+        }
+    };
+    
+    
+    private final static FileFilter fileFilter = new FileFilter() {
+        public boolean accept(File file) {
+            return !file.isDirectory();
+        }
+    };
+    
+    public static File[] listFileHandles(final File dir, final boolean includeSubDirs) throws IOException {
 
-		File[] subFolders = dir.listFiles(fileFilter);
-	
-		List<File> files = new ArrayList<File>();
-	
-		List<File> fileArray = new ArrayList<File>(FileUtils.listFiles(dir, TrueFileFilter.INSTANCE, includeSubDirs ? TrueFileFilter.INSTANCE : null));
-	
-		for (File file : fileArray) {
-			if(file.isFile()) {
-				if(includeSubDirs && containsParentFolder(file, subFolders)) {
-					files.add(file);
-				} else {
-					files.add(file);
-				}
-			}
-		}
-	
-		return (File[])files.toArray(new File[0]);
-	}
-	
-	public static String[] listFiles(File dir, Boolean includeSubDirs) throws IOException {
-		 FileFilter fileFilter = new FileFilter() {
-		        public boolean accept(File file) {
-		            return file.isDirectory();
-		        }
-		    };
-		File[] subFolders = dir.listFiles(fileFilter);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return new File[0];
+        }
+        
+        final List<File> files = new ArrayList<File>();
 
-		List<String> files = new ArrayList<String>();
+        files.addAll(Arrays.asList(dir.listFiles(fileFilter)));
+        
+        if (true == includeSubDirs) {
+            final File[] subFolders = dir.listFiles(directoryFilter);
+            for (File subDir : subFolders) {
+                files.addAll(Arrays.asList(subDir.listFiles(fileFilter)));
+            }
+        }
+        
+        return files
+                .stream()
+                .filter(f->f.getAbsolutePath().startsWith(dir.getAbsolutePath()))
+                .collect(Collectors.toList())
+                .toArray(new File[0]);
+        
 
-		List<File> fileArray = new ArrayList<File>(FileUtils.listFiles(dir, TrueFileFilter.INSTANCE, includeSubDirs ? TrueFileFilter.INSTANCE : null));
-
-		for (File file : fileArray) {
-			if(file.isFile()) {
-				if(includeSubDirs && containsParentFolder(file, subFolders)) {
-					files.add(file.getParentFile().getName() + File.separator + file.getName());
-				} else {
-					files.add(file.getName());
-				}
-			}
-		}
-
-		return (String[])files.toArray(new String[0]);
+    }
+	
+	public static String[] listFiles(File dir, boolean includeSubDirs) throws IOException {
+	    return Arrays.asList(listFileHandles(dir, includeSubDirs)).stream().map(f->f.getAbsoluteFile()).collect(Collectors.toList()).toArray(new String[0]);
 	}
 
 	public static void mkdirs(String pathName) {
@@ -579,9 +567,12 @@ public class FileUtil {
             try (//Creates InputStream for both files.
                     InputStream inputSource = Files.newInputStream(source.toPath());
                     InputStream inputDestination = Files.newInputStream(destination.toPath())){
-
+                MessageDigest mdIn = MessageDigest.getInstance("MD5");
+                MessageDigest mdOut = MessageDigest.getInstance("MD5");
+                new DigestInputStream(inputSource, mdIn);
+                new DigestInputStream(inputDestination, mdOut);
                 //Both files checked.
-                if(DigestUtils.md5Hex(inputSource).equals(DigestUtils.md5Hex(inputDestination))){
+                if(mdIn.digest().equals(mdOut.digest())){
 
                     //If both files are the same but the destination is a soft link do nothing...., we don't want to remove the original file
                     if ( source.toPath().toRealPath().equals(destination.toPath().toRealPath())

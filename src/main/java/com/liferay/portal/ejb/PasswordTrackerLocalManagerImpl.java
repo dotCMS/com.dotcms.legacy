@@ -29,7 +29,7 @@ import java.util.List;
 
 import com.dotcms.enterprise.PasswordFactoryProxy;
 import com.dotcms.enterprise.de.qaware.heimdall.PasswordException;
-import com.dotcms.repackage.com.liferay.counter.ejb.CounterManagerUtil;
+
 import com.dotmarketing.util.Logger;
 import com.liferay.portal.PortalException;
 import com.liferay.portal.SystemException;
@@ -125,8 +125,7 @@ public class PasswordTrackerLocalManagerImpl
 	public void trackPassword(String userId, String encPwd)
 		throws PortalException, SystemException {
 
-		String passwordTrackerId = Long.toString(CounterManagerUtil.increment(
-			PasswordTracker.class.getName()));
+		String passwordTrackerId = Long.toString(System.currentTimeMillis());
 
 		PasswordTracker passwordTracker =
 			PasswordTrackerUtil.create(passwordTrackerId);

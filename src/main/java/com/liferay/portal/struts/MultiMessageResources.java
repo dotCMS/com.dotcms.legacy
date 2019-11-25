@@ -22,7 +22,19 @@
 
 package com.liferay.portal.struts;
 
-import com.dotcms.repackage.com.google.common.collect.ImmutableMap;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import javax.servlet.ServletContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.dotcms.repackage.com.oroad.stxx.util.PropertyMessageResources;
 import com.dotcms.repackage.org.apache.struts.util.MessageResourcesFactory;
 import com.dotmarketing.business.APILocator;
@@ -33,18 +45,6 @@ import com.dotmarketing.portlets.languagesmanager.model.LanguageKey;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.util.StringUtil;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import javax.servlet.ServletContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * <a href="MultiMessageResources.java.html"><b><i>View Source </i></b></a>
@@ -69,7 +69,7 @@ public class MultiMessageResources extends PropertyMessageResources {
 
 	public Map getMessages() {
 		synchronized (messages) {
-			return ImmutableMap.copyOf(messages);
+			return Collections.unmodifiableMap(messages);
 		}
 	}
 

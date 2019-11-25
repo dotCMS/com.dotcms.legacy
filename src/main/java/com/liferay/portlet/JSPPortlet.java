@@ -20,11 +20,12 @@
 package com.liferay.portlet;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.dotcms.repackage.com.google.common.collect.ImmutableMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.dotcms.repackage.javax.portlet.ActionRequest;
 import com.dotcms.repackage.javax.portlet.ActionResponse;
 import com.dotcms.repackage.javax.portlet.GenericPortlet;
@@ -32,10 +33,6 @@ import com.dotcms.repackage.javax.portlet.PortletException;
 import com.dotcms.repackage.javax.portlet.PortletRequestDispatcher;
 import com.dotcms.repackage.javax.portlet.RenderRequest;
 import com.dotcms.repackage.javax.portlet.RenderResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.liferay.portal.util.Constants;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.util.GetterUtil;
@@ -60,7 +57,7 @@ public class JSPPortlet extends GenericPortlet {
       String key = e.nextElement();
       params.put(key, this.getInitParameter(key));
     }
-    this.initParams = ImmutableMap.copyOf(params);
+    this.initParams = Collections.unmodifiableMap(params);
 
     _editJSP = getInitParameter("edit-jsp");
     _helpJSP = getInitParameter("help-jsp");
