@@ -23,10 +23,6 @@
 package com.liferay.util;
 
 
-import com.dotmarketing.business.APILocator;
-import com.dotmarketing.business.DotStateException;
-import com.dotmarketing.util.Config;
-import com.dotmarketing.util.Logger;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -55,14 +51,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
 import javax.servlet.ServletContext;
-
-import org.apache.logging.log4j.core.util.FileUtils;
+import com.dotmarketing.business.DotStateException;
+import com.dotmarketing.exception.DotRuntimeException;
+import com.dotmarketing.util.Config;
+import com.dotmarketing.util.Logger;
+import io.vavr.control.Try;
 
 /**
  * <a href="FileUtil.java.html"><b><i>View Source</i></b></a>
@@ -442,23 +439,8 @@ public class FileUtil {
 		return file.exists();
 	}
 
-	public static String[] listDirs(String fileName) throws IOException {
-		return listDirs(new File(fileName));
-	}
 
-	public static String[] listDirs(File file) throws IOException {
-		List dirs = new ArrayList();
 
-		File[] fileArray = file.listFiles();
-
-		for (int i = 0; i < fileArray.length; i++) {
-			if (fileArray[i].isDirectory()) {
-				dirs.add(fileArray[i].getName());
-			}
-		}
-
-		return (String[])dirs.toArray(new String[0]);
-	}
 
 	public static String[] listFiles(String fileName) throws IOException {
 		return listFiles(new File(fileName));
@@ -482,52 +464,43 @@ public class FileUtil {
 	public static String[] listFiles(File dir) throws IOException {
 		return listFiles(dir, false);
 	}
+    
 
-	public static File[] listFileHandles(String fileName, Boolean includeSubDirs) throws IOException {
-		return listFileHandles(new File(fileName), includeSubDirs);
-	}
-	
-    private final static FileFilter directoryFilter = new FileFilter() {
-        public boolean accept(File file) {
-            return file.isDirectory();
-        }
-    };
     
-    
-    private final static FileFilter fileFilter = new FileFilter() {
-        public boolean accept(File file) {
-            return !file.isDirectory();
-        }
-    };
-    
-    public static File[] listFileHandles(final File dir, final boolean includeSubDirs) throws IOException {
+    /**
+     * returns a list of all files under a specific directory
+     * @param dir
+     * @param includeSubDirs
+     * @return
+     * @throws IOException
+     */
+    public static List<File> listFileHandles(final File dir, final boolean includeSubDirs) throws IOException {
 
         if (!dir.exists() || !dir.isDirectory()) {
-            return new File[0];
+            return new ArrayList<>();
         }
         
         final List<File> files = new ArrayList<File>();
 
-        files.addAll(Arrays.asList(dir.listFiles(fileFilter)));
-        
-        if (true == includeSubDirs) {
-            final File[] subFolders = dir.listFiles(directoryFilter);
-            for (File subDir : subFolders) {
-                files.addAll(Arrays.asList(subDir.listFiles(fileFilter)));
-            }
+        if(includeSubDirs) {
+            Files.walk(dir.toPath())
+            .forEach(p->files.add(p.toFile()));
         }
-        
+        else {
+            files.addAll(Arrays.asList(dir.listFiles()));
+        }
+
+        // prevents someone from following a symlink to an external path
         return files
                 .stream()
                 .filter(f->f.getAbsolutePath().startsWith(dir.getAbsolutePath()))
-                .collect(Collectors.toList())
-                .toArray(new File[0]);
+                .collect(Collectors.toList()); 
         
 
     }
 	
 	public static String[] listFiles(File dir, boolean includeSubDirs) throws IOException {
-	    return Arrays.asList(listFileHandles(dir, includeSubDirs)).stream().map(f->f.getAbsoluteFile()).collect(Collectors.toList()).toArray(new String[0]);
+	    return listFileHandles(dir, includeSubDirs).stream().map(f->f.getAbsoluteFile()).collect(Collectors.toList()).toArray(new String[0]);
 	}
 
 	public static void mkdirs(String pathName) {
@@ -606,18 +579,18 @@ public class FileUtil {
 	}
 
 	public static String read(File file) throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(file));
+		try(BufferedReader br = new BufferedReader(new FileReader(file))){
 
-		StringBuffer sb = new StringBuffer();
-		String line = null;
-
-		while ((line = br.readLine()) != null) {
-			sb.append(line).append('\n');
+    		StringBuffer sb = new StringBuffer();
+    		String line = null;
+    
+    		while ((line = br.readLine()) != null) {
+    			sb.append(line).append('\n');
+    		}
+    
+    
+    		return sb.toString().trim();
 		}
-
-		br.close();
-
-		return sb.toString().trim();
 	}
 
 	public static File[] sortFiles(File[] files) {
@@ -644,26 +617,24 @@ public class FileUtil {
 		return StringUtil.replace(fileName, '\\', "/");
 	}
 
-	public static List toList(Reader reader) {
-		List list = new ArrayList();
+    public static List toList(Reader reader) {
+        List list = new ArrayList();
 
-		try {
-			BufferedReader br = new BufferedReader(reader);
+        try (BufferedReader br = new BufferedReader(reader)) {
 
-			StringBuffer sb = new StringBuffer();
-			String line = null;
+            StringBuffer sb = new StringBuffer();
+            String line = null;
 
-			while ((line = br.readLine()) != null) {
-				list.add(line);
-			}
+            while ((line = br.readLine()) != null) {
+                list.add(line);
+            }
 
-			br.close();
-		}
-		catch (IOException ioe) {
-		}
+            return list;
+        } catch (IOException ioe) {
+        }
+        return null;
 
-		return list;
-	}
+    }
 
 	public static List toList(String fileName) {
 		try {
@@ -699,13 +670,12 @@ public class FileUtil {
 		if (file.getParent() != null) {
 			mkdirs(file.getParent());
 		}
+		
+		try(BufferedWriter bw = new BufferedWriter(new FileWriter(file))){
+    		bw.flush();
+    		bw.write(s);
 
-		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-
-		bw.flush();
-		bw.write(s);
-
-		bw.close();
+		}
 	}
 
 	public static void write(String fileName, String s) throws IOException {
@@ -800,37 +770,18 @@ public class FileUtil {
 	  *
 	  * @param aStartingDir is a valid directory, which can be read.
 	  */
-	  static public List<File> listFilesRecursively(File aStartingDir, FileFilter filter)  {
+	  static public List<File> listFilesRecursively(File aStartingDir, final FileFilter filter)  {
 		    validateDirectory(aStartingDir);
-		    List<File> result = getFileListingNoSort(aStartingDir, filter);
+		    List<File> result = Try.of(()-> listFileHandles(aStartingDir, true)).getOrElseThrow(e->new DotRuntimeException("unable to list files under:" + aStartingDir + " :" + e));
 		    Collections.sort(result);
-		    return result;
+		    
+		    
+		    
+		    return result.stream().filter(f->filter.accept(f)).collect(Collectors.toList());
 	  }
 
 
-	  // PRIVATE //
-	  static private List<File> getFileListingNoSort(File aStartingDir, FileFilter filter) {
-	    List<File> result = new ArrayList<File>();
 
-	    File[] filesAndDirs = null;
-	    if(filter !=null){
-	    	filesAndDirs = aStartingDir.listFiles(filter);
-	    }
-	    else{
-	    	filesAndDirs = aStartingDir.listFiles();
-	    }
-	    List<File> filesDirs = Arrays.asList(filesAndDirs);
-	    for(File file : filesDirs) {
-	      result.add(file); //always add, even if directory
-	      if ( ! file.isFile() ) {
-	        //must be a directory
-	        //recursive call!
-	        List<File> deeperList = getFileListingNoSort(file, filter);
-	        result.addAll(deeperList);
-	      }
-	    }
-	    return result;
-	  }
 
 	  /**
 	   * Directory is valid if it exists, does not represent a file, and can be read.
@@ -850,15 +801,6 @@ public class FileUtil {
 	     }
 	   }
 
-	/**
-	 * @return File (directory) created in file system from the parameter path.
-	 */
-	static public File mkDirsIfNeeded(final String path) {
-		File folder = new File(path);
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-		return folder;
-	} //mkDirsIfNeeded.
+
 
 }
