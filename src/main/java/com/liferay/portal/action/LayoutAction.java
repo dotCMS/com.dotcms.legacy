@@ -45,7 +45,6 @@ import com.liferay.portlet.LiferayWindowState;
 import com.liferay.portlet.RenderParametersPool;
 import com.liferay.util.ParamUtil;
 import com.liferay.util.Validator;
-import com.liferay.util.servlet.UploadServletRequest;
 import java.util.List;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -155,12 +154,7 @@ public class LayoutAction extends Action {
 
     String contentType = req.getHeader("Content-Type");
 
-    if ((contentType != null) && (contentType.startsWith("multipart/form-data"))) {
 
-      UploadServletRequest uploadReq = (UploadServletRequest) req;
-
-      req = uploadReq;
-    }
 
     String companyId = PortalUtil.getCompanyId(req);
     User user = PortalUtil.getUser(req);

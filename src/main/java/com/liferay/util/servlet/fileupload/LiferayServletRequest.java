@@ -20,33 +20,47 @@
  * SOFTWARE.
  */
 
-package com.liferay.portlet.admin;
+package com.liferay.util.servlet.fileupload;
 
-import com.liferay.portal.PortalException;
+import java.io.IOException;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
- * <a href="NoSuchConfigException.java.html"><b><i>View Source</i></b></a>
+ * <a href="LiferayServletRequest.java.html"><b><i>View Source</i></b></a>
  *
+ * @author  Brian Myunghun Kim
  * @author  Brian Wing Shun Chan
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.3 $
  *
  */
-public class NoSuchConfigException extends PortalException {
+public class LiferayServletRequest extends HttpServletRequestWrapper {
 
-	public NoSuchConfigException() {
-		super();
+	public LiferayServletRequest(HttpServletRequest req) {
+		super(req);
+
+		_req = req;
 	}
 
-	public NoSuchConfigException(String msg) {
-		super(msg);
+	public ServletInputStream getInputStream() throws IOException {
+		if (_lis == null) {
+			_lis = new LiferayInputStream(_req);
+
+			return _lis;
+		}
+		else {
+
+			// Return the cached input stream the second time the user requests
+			// the input stream, otherwise, it will return an empty input stream
+			// because it has already been parsed
+
+			return _lis.getCachedInputStream();
+		}
 	}
 
-	public NoSuchConfigException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-
-	public NoSuchConfigException(Throwable cause) {
-		super(cause);
-	}
+	private HttpServletRequest _req;
+	private LiferayInputStream _lis = null;
 
 }

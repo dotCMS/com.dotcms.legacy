@@ -56,9 +56,7 @@ import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
 import com.liferay.portal.pwd.PwdToolkitUtil;
 import com.liferay.portal.util.PropsUtil;
-import com.liferay.portlet.admin.ejb.AdminConfigManagerUtil;
-import com.liferay.portlet.admin.model.EmailConfig;
-import com.liferay.portlet.admin.model.UserConfig;
+
 import com.liferay.util.GetterUtil;
 import com.liferay.util.InstancePool;
 import com.liferay.util.StringUtil;
@@ -197,7 +195,7 @@ public class UserLocalManagerImpl implements UserLocalManager {
 
 		// Delete user's portrait
 
-		ImageLocalUtil.remove(userId);
+
 
 		// Delete user's skin
 
@@ -445,12 +443,7 @@ public class UserLocalManagerImpl implements UserLocalManager {
 			catch (NoSuchUserException nsue) {
 			}
 
-			UserConfig userConfig =
-				AdminConfigManagerUtil.getUserConfig(companyId);
 
-			if (userConfig.hasReservedUserId(userId)) {
-				throw new ReservedUserIdException();
-			}
 		}
 
 		if (!Validator.isEmailAddress(emailAddress)) {
@@ -467,12 +460,7 @@ public class UserLocalManagerImpl implements UserLocalManager {
 			catch (NoSuchUserException nsue) {
 			}
 
-			UserConfig userConfig =
-				AdminConfigManagerUtil.getUserConfig(companyId);
 
-			if (userConfig.hasReservedUserEmailAddress(emailAddress)) {
-				throw new ReservedUserEmailAddressException();
-			}
 		}
 
 		if (!autoPassword) {
@@ -541,12 +529,7 @@ public class UserLocalManagerImpl implements UserLocalManager {
 			catch (NoSuchUserException nsue) {
 			}
 
-			UserConfig userConfig =
-				AdminConfigManagerUtil.getUserConfig(user.getCompanyId());
 
-			if (userConfig.hasReservedUserEmailAddress(emailAddress)) {
-				throw new ReservedUserEmailAddressException();
-			}
 		}
 
 		if (Validator.isNotNull(smsId) && !Validator.isEmailAddress(smsId)) {

@@ -24,7 +24,7 @@ package com.liferay.portal.tools;
 
 import com.dotmarketing.util.Logger;
 import com.liferay.util.FileUtil;
-import com.liferay.util.xml.XMLFormatter;
+
 
 /**
  * <a href="WebXMLStripper.java.html"><b><i>View Source</i></b></a>
@@ -58,7 +58,7 @@ public class WebXMLStripper {
 					content.substring(0, x) +
 						content.substring(y, content.length());
 
-				content = XMLFormatter.toString(content);
+				content =content;
 
 				FileUtil.write(fileName, content);
 			}

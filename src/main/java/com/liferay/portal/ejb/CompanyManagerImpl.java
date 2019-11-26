@@ -22,10 +22,14 @@
 
 package com.liferay.portal.ejb;
 
+import com.dotcms.enterprise.cluster.ClusterFactory;
+import com.dotmarketing.business.APILocator;
 import com.dotmarketing.common.db.DotConnect;
 import com.dotmarketing.db.DbConnectionFactory;
 import com.dotmarketing.exception.DotRuntimeException;
+import com.dotmarketing.util.ConfigUtils;
 import com.dotmarketing.util.Logger;
+import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.PortalException;
 import com.liferay.portal.SystemException;
 import com.liferay.portal.auth.PrincipalException;
@@ -34,12 +38,18 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.util.FileUtil;
 import com.liferay.util.GetterUtil;
-import com.liferay.util.ImageUtil;
+
 
 import javax.imageio.ImageIO;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -169,27 +179,15 @@ public class CompanyManagerImpl
 			throw new PrincipalException();
 		}
 
-		try {
-			ImageLocalUtil.put(companyId, FileUtil.getBytes(file));
-
-			BufferedImage thumbnail = ImageUtil.scale(ImageIO.read(file), .6);
-
-			// PNG
-
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-			ImageIO.write(thumbnail, "png", baos);
-
-			ImageLocalUtil.put(companyId + ".png", baos.toByteArray());
-
-			// WBMP
-
-			baos = new ByteArrayOutputStream();
-
-			ImageUtil.encodeWBMP(thumbnail, baos);
-
-			ImageLocalUtil.put(companyId + ".wbmp", baos.toByteArray());
+		if(!UtilMethods.isImage(file.getName())) {
+		    throw new DotRuntimeException("Logo must be an image");
 		}
+        File imageFile = new File(ConfigUtils.getClusterFolder(), "configimage." + UtilMethods.getFileExtension(file.getName()));
+        
+	    try(OutputStream out = new BufferedOutputStream(new FileOutputStream(imageFile))){
+
+	        IOUtils.copy(new FileInputStream(file), out);
+	    }
 		catch (Exception e) {
 			Logger.error(this,e.getMessage(),e);
 		}

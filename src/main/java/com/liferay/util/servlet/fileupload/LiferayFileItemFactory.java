@@ -20,62 +20,37 @@
  * SOFTWARE.
  */
 
-package com.liferay.portlet.admin.model;
+package com.liferay.util.servlet.fileupload;
 
-import java.io.Serializable;
+import java.io.File;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 
 /**
- * <a href="EmailConfig.java.html"><b><i>View Source</i></b></a>
+ * <a href="LiferayFileItemFactory.java.html"><b><i>View Source</i></b></a>
  *
  * @author  Brian Wing Shun Chan
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.2 $
  *
  */
-public class EmailConfig implements Serializable {
+public class LiferayFileItemFactory extends DiskFileItemFactory {
 
-	public EmailConfig() {
+    public static final int DEFAULT_SIZE = 0;
+
+	public LiferayFileItemFactory(File tempDir) {
+		_tempDir = tempDir;
 	}
 
-	public EmailConfig(String subject, String body) {
-		this(false, subject, body);
+	public FileItem createItem(
+		String fieldName, String contentType, boolean isFormField,
+		String fileName) {
+
+		return new LiferayFileItem(
+			fieldName, contentType, isFormField, fileName, DEFAULT_SIZE,
+			_tempDir);
 	}
 
-	public EmailConfig(boolean send, String subject, String body) {
-		_send = send;
-		_subject = subject;
-		_body = body;
-	}
-
-	public boolean getSend() {
-		return _send;
-	}
-
-	public boolean isSend() {
-		return getSend();
-	}
-
-	public void setSend(boolean send) {
-		_send = send;
-	}
-
-	public String getSubject() {
-		return _subject;
-	}
-
-	public void setSubject(String subject) {
-		_subject = subject;
-	}
-
-	public String getBody() {
-		return _body;
-	}
-
-	public void setBody(String body) {
-		_body = body;
-	}
-
-	private boolean _send;
-	private String _subject;
-	private String _body;
+	private File _tempDir;
 
 }

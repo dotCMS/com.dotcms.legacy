@@ -30,7 +30,7 @@ import com.dotcms.repackage.javax.portlet.Portlet;
 import com.dotcms.repackage.javax.portlet.PreferencesValidator;
 import javax.servlet.ServletContext;
 
-import com.liferay.portal.job.Scheduler;
+
 
 
 /**
@@ -46,7 +46,7 @@ public class PortletContextWrapper {
 								 ServletContext	servletContext,
 								 Portlet portletInstance,
 
-								 Scheduler schedulerInstance,
+
 								 PreferencesValidator prefsValidator,
 								 Map resourceBundles,
 								 Map customUserAttributes) {
@@ -55,7 +55,7 @@ public class PortletContextWrapper {
 		_servletContext = servletContext;
 		_portletInstance = portletInstance;
 
-		_schedulerInstance = schedulerInstance;
+
 		_prefsValidator = prefsValidator;
 		_resourceBundles = resourceBundles;
 		_customUserAttributes = customUserAttributes;
@@ -78,9 +78,6 @@ public class PortletContextWrapper {
 	}
 
 
-	public Scheduler getSchedulerInstance() {
-		return _schedulerInstance;
-	}
 
 	public PreferencesValidator getPreferencesValidator() {
 		return _prefsValidator;
@@ -106,7 +103,7 @@ public class PortletContextWrapper {
 	private ServletContext _servletContext;
 	private Portlet _portletInstance;
 
-	private Scheduler _schedulerInstance;
+
 	private PreferencesValidator _prefsValidator;
 	private Map _resourceBundles;
 	private Map _customUserAttributes;

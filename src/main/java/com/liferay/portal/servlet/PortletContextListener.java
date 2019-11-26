@@ -30,38 +30,25 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.Set;
-
-import com.dotcms.repackage.javax.portlet.PreferencesValidator;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.util.Logger;
-import com.liferay.portal.ejb.PortletManagerUtil;
-import com.liferay.portal.job.Scheduler;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.WebAppPool;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.PortletPreferencesSerializer;
 import com.liferay.util.CollectionFactory;
 import com.liferay.util.FileUtil;
-import com.liferay.util.GetterUtil;
-import com.liferay.util.Http;
 import com.liferay.util.KeyValuePair;
 import com.liferay.util.StringPool;
 import com.liferay.util.StringUtil;
-import com.liferay.util.Validator;
 
 
 /**
@@ -120,7 +107,7 @@ public class PortletContextListener implements ServletContextListener {
 
 				PortletContextWrapper pcw = new PortletContextWrapper(
 					portlet.getPortletId(), ctx, portletInstance,
-					null, null,
+					null,
 					null, customUserAttributes);
 
 				PortletContextPool.put(portlet.getPortletId(), pcw);

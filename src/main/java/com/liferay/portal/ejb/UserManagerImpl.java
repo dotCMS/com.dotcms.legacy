@@ -49,9 +49,7 @@ import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
 import com.liferay.portal.pwd.PwdToolkitUtil;
 import com.liferay.portal.util.PropsUtil;
-import com.liferay.portlet.admin.ejb.AdminConfigManagerUtil;
-import com.liferay.portlet.admin.model.EmailConfig;
-import com.liferay.portlet.admin.model.UserConfig;
+
 import com.liferay.util.Encryptor;
 import com.liferay.util.EncryptorException;
 import com.liferay.util.GetterUtil;
@@ -278,63 +276,9 @@ public class UserManagerImpl extends PrincipalBean implements UserManager {
 
     @Override
     public int notifyNewUsers() throws PortalException, SystemException {
-        String companyId = getUser().getCompanyId();
 
-        if (!hasAdministrator(companyId)) {
-            throw new PrincipalException();
-        }
 
-        UserConfig userConfig = AdminConfigManagerUtil.getUserConfig(companyId);
-
-        EmailConfig registrationEmail = userConfig.getRegistrationEmail();
-
-        if (registrationEmail == null || !registrationEmail.isSend()) {
-            return 0;
-        }
-
-        // Send email notification
-
-        Company company = CompanyUtil.findByPrimaryKey(companyId);
-
-        String adminName = company.getAdminName();
-
-        String subject = registrationEmail.getSubject();
-        String body = registrationEmail.getBody();
-
-        List<?> users = UserUtil.findByC_P(companyId, "password");
-
-        for (int i = 0; i < users.size(); i++) {
-            User user = (User) users.get(i);
-
-            user.setPassword(PwdToolkitUtil.generate());
-
-            UserUtil.update(user);
-
-            subject = StringUtil.replace(subject,
-                    new String[] {"[$ADMIN_EMAIL_ADDRESS$]", "[$ADMIN_NAME$]", "[$COMPANY_MX$]", "[$COMPANY_NAME$]", "[$PORTAL_URL$]",
-                            "[$USER_EMAIL_ADDRESS$]", "[$USER_NAME$]", "[$USER_PASSWORD$]"},
-                    new String[] {company.getEmailAddress(), adminName, company.getMx(), company.getName(), company.getPortalURL(),
-                            user.getEmailAddress(), user.getFullName(), user.getPassword()});
-
-            body = StringUtil.replace(body,
-                    new String[] {"[$ADMIN_EMAIL_ADDRESS$]", "[$ADMIN_NAME$]", "[$COMPANY_MX$]", "[$COMPANY_NAME$]", "[$PORTAL_URL$]",
-                            "[$USER_EMAIL_ADDRESS$]", "[$USER_NAME$]", "[$USER_PASSWORD$]"},
-                    new String[] {company.getEmailAddress(), adminName, company.getMx(), company.getName(), company.getPortalURL(),
-                            user.getEmailAddress(), user.getFullName(), user.getPassword()});
-
-            try {
-                final Mailer mailer = new Mailer();
-                mailer.setToEmail(new InternetAddress(user.getEmailAddress(), user.getFullName()).getAddress());
-                mailer.setFromEmail(new InternetAddress(company.getEmailAddress(), adminName).getAddress());
-                mailer.setSubject(subject);
-                mailer.setTextBody(body);
-                mailer.sendMessage();
-            } catch (IOException ioe) {
-                throw new SystemException(ioe);
-            }
-        }
-
-        return users.size();
+        return 0;
     }
 
     @Override
@@ -443,13 +387,6 @@ public class UserManagerImpl extends PrincipalBean implements UserManager {
     @Override
     public void updatePortrait(String userId, byte[] bytes) throws PortalException, SystemException {
 
-        userId = userId.trim().toLowerCase();
-
-        if (!getUserId().equals(userId) && !hasAdmin(userId)) {
-            throw new PrincipalException();
-        }
-
-        ImageLocalUtil.put(userId, bytes);
     }
 
     @Override
